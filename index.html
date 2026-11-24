@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Pulse | Modern College Student Dashboard</title>
+  
+  <!-- Favicon icon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2'><path d='M22 10v6M2 10l10-5 10 5-10 5z'/><path d='M6 12v5c3 3 9 3 12 0v-5'/></svg>">
+
+  <!-- Design System & Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+
+  <!-- Lucide Icons (Production CDN) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js (Data Visualization CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Backdrop overlay for mobile drawer -->
+  <div class="sidebar-backdrop"></div>
+
+  <div class="app-wrapper">
+
+    <!-- ===================================================================
+         SIDEBAR NAVIGATION
+         =================================================================== -->
+    <aside class="app-sidebar">
+      <div class="sidebar-header">
+        <a href="#overview" class="brand-container">
+          <div class="brand-icon-wrapper">
+            <i data-lucide="graduation-cap"></i>
+          </div>
+          <div class="brand-title-group">
+            <h1>Campus Pulse</h1>
+            <span>Student Portal</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="sidebar-scrollable">
+        <div>
+          <div class="nav-group-label">Academic Hub</div>
+          <ul class="nav-list">
+            <li>
+              <a class="nav-link active" data-tab="overview">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Overview</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link" data-tab="profile">
+                <i data-lucide="user"></i>
+                <span>Student Profile</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link" data-tab="attendance">
+                <i data-lucide="check-circle-2"></i>
+                <span>Attendance</span>
+                <span class="nav-badge">88.4%</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link" data-tab="marks">
+                <i data-lucide="award"></i>
+                <span>Marks & Grades</span>
+                <span class="nav-badge">3.84 CGPA</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link" data-tab="timetable">
+                <i data-lucide="calendar"></i>
+                <span>Timetable</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link" data-tab="subjects">
+                <i data-lucide="book-open"></i>
+                <span>Subjects & Syllabus</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link" data-tab="announcements">
+                <i data-lucide="bell"></i>
+                <span>Announcements</span>
+                <span class="nav-badge urgent">2 New</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="nav-group-label">Services & Actions</div>
+          <ul class="nav-list">
+            <li>
+              <a class="nav-link" onclick="App.openHallTicketModal()">
+                <i data-lucide="ticket"></i>
+                <span>Hall Ticket</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link" onclick="App.openLeaveModal()">
+                <i data-lucide="file-text"></i>
+                <span>Apply for Leave</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link" onclick="App.showToast('Fee Receipt', 'Latest semester fee receipt sent to university email', 'info')">
+                <i data-lucide="receipt"></i>
+                <span>Fee Receipts</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Academic Advisor Mini Card -->
+      <div class="sidebar-footer" id="sidebarAdvisorCard"></div>
+    </aside>
+
+    <!-- ===================================================================
+         MAIN VIEWPORT
+         =================================================================== -->
+    <main class="main-content">
+
+      <!-- TOPBAR NAVIGATION -->
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle-btn" id="mobileMenuToggle" aria-label="Toggle Navigation Drawer">
+            <i data-lucide="menu"></i>
+          </button>
+
+          <!-- Omnibox Search -->
+          <div class="search-omnibox">
+            <i data-lucide="search"></i>
+            <input type="text" id="globalOmniSearch" placeholder="Search courses, circulars, faculty... (Press Enter)">
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Real-Time Clock & Date Pill -->
+          <div class="date-time-pill">
+            <span class="live-dot"></span>
+            <span id="liveClockText">--:--</span>
+            <span class="date-text" style="color: var(--text-muted); font-weight: normal;">•</span>
+            <span class="date-text" id="liveDateText">---</span>
+          </div>
+
+          <!-- Light/Dark Mode Toggle Button -->
+          <button class="btn-icon-topbar" id="themeToggleBtn" title="Toggle Theme">
+            <i data-lucide="moon" id="themeIcon"></i>
+          </button>
+
+          <!-- Notification Bell with Dropdown -->
+          <div style="position: relative;">
+            <button class="btn-icon-topbar" id="notifDropdownBtn" title="Notifications">
+              <i data-lucide="bell"></i>
+              <span class="notif-badge-indicator"></span>
+            </button>
+            
+            <div class="notifications-dropdown-menu" id="notifDropdownMenu">
+              <div class="dropdown-header">
+                <h4>Notifications</h4>
+                <span class="badge badge-emerald">2 Unread</span>
+              </div>
+              <div class="dropdown-list" id="topbarNotificationsList"></div>
+              <div class="dropdown-footer">
+                <button class="btn btn-ghost btn-sm" onclick="App.switchTab('announcements'); document.getElementById('notifDropdownMenu').classList.remove('open');">
+                  View All Announcements
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Profile Pill -->
+          <div class="topbar-user-pill" id="topbarProfilePill" title="View Full Profile">
+            <img src="" alt="Student Profile" class="topbar-user-avatar" id="topbarUserAvatar">
+            <div class="topbar-user-info">
+              <div class="topbar-user-name" id="topbarUserName">Nissi Kratos</div>
+              <div class="topbar-user-sub" id="topbarUserRoll">CS-2023-048</div>
+            </div>
+            <i data-lucide="chevron-down" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
+          </div>
+        </div>
+      </header>
+
+      <!-- PAGE CONTENT CONTAINER -->
+      <div class="page-content-wrapper">
+
+        <!-- ===============================================================
+             TAB 1: OVERVIEW DASHBOARD
+             =============================================================== -->
+        <section class="dashboard-section active" id="section-overview">
+          <!-- Welcome Banner -->
+          <div class="overview-banner">
+            <div class="banner-decoration-circle"></div>
+            <div class="banner-content-left">
+              <div class="banner-pill">
+                <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i>
+                <span>Fall 2026 Academic Term • Semester VII</span>
+              </div>
+              <h1>Welcome back, <span id="overviewStudentName">Nissi</span>! 👋</h1>
+              <p>You have an excellent 88.4% attendance standing and 3 upcoming academic deliverables this week. Keep up the high momentum!</p>
+              
+              <div class="banner-quick-actions">
+                <button class="btn" onclick="App.openHallTicketModal()">
+                  <i data-lucide="ticket"></i>
+                  <span>Download Hall Ticket</span>
+                </button>
+                <button class="btn btn-outline" onclick="App.switchTab('timetable')">
+                  <i data-lucide="calendar"></i>
+                  <span>View Full Schedule</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 KPI Stat Cards -->
+          <div class="stats-grid">
+            <!-- Stat 1: CGPA -->
+            <div class="pulse-card stat-card">
+              <div class="stat-info-wrap">
+                <span class="stat-label">Cumulative GPA</span>
+                <div class="stat-value-group">
+                  <span class="stat-number">3.84</span>
+                  <span class="stat-scale">/ 4.00</span>
+                </div>
+                <div class="stat-delta positive">
+                  <i data-lucide="trending-up" style="width: 14px; height: 14px;"></i>
+                  <span>+0.07 from Semester 6</span>
+                </div>
+              </div>
+              <div class="stat-icon-bubble indigo">
+                <i data-lucide="award"></i>
+              </div>
+            </div>
+
+            <!-- Stat 2: Attendance -->
+            <div class="pulse-card stat-card">
+              <div class="stat-info-wrap">
+                <span class="stat-label">Total Attendance</span>
+                <div class="stat-value-group">
+                  <span class="stat-number">88.4%</span>
+                </div>
+                <div class="stat-delta positive">
+                  <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i>
+                  <span>Safe (+13.4% above 75% min)</span>
+                </div>
+              </div>
+              <div class="stat-icon-bubble emerald">
+                <i data-lucide="check-circle-2"></i>
+              </div>
+            </div>
+
+            <!-- Stat 3: Credits Completed -->
+            <div class="pulse-card stat-card">
+              <div class="stat-info-wrap">
+                <span class="stat-label">Degree Credits</span>
+                <div class="stat-value-group">
+                  <span class="stat-number">112</span>
+                  <span class="stat-scale">/ 136</span>
+                </div>
+                <div class="stat-delta neutral">
+                  <i data-lucide="activity" style="width: 14px; height: 14px;"></i>
+                  <span>82.4% Degree Completed</span>
+                </div>
+              </div>
+              <div class="stat-icon-bubble amber">
+                <i data-lucide="book-open"></i>
+              </div>
+            </div>
+
+            <!-- Stat 4: Pending Tasks -->
+            <div class="pulse-card stat-card">
+              <div class="stat-info-wrap">
+                <span class="stat-label">Pending Deliverables</span>
+                <div class="stat-value-group">
+                  <span class="stat-number">3</span>
+                  <span class="stat-scale">Items</span>
+                </div>
+                <div class="stat-delta warning">
+                  <i data-lucide="clock" style="width: 14px; height: 14px;"></i>
+                  <span>1 due tomorrow</span>
+                </div>
+              </div>
+              <div class="stat-icon-bubble rose">
+                <i data-lucide="alert-circle"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2-Column Split: Today's Schedule & Deadlines -->
+          <div class="dashboard-columns-2">
+            <!-- Left: Today's Schedule -->
+            <div class="pulse-card">
+              <div class="card-header-clean">
+                <div class="card-title-group">
+                  <i data-lucide="calendar-clock"></i>
+                  <div>
+                    <h3>Today's Academic Schedule</h3>
+                    <div class="card-subtitle">Lectures & Practical Lab sessions</div>
+                  </div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="App.switchTab('timetable')">
+                  <span>Full Week</span>
+                  <i data-lucide="arrow-right" style="width: 13px; height: 13px;"></i>
+                </button>
+              </div>
+
+              <div class="today-class-list" id="overviewTodaySchedule"></div>
+            </div>
+
+            <!-- Right: Upcoming Deadlines & Priority Notice -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+              <div class="pulse-card">
+                <div class="card-header-clean">
+                  <div class="card-title-group">
+                    <i data-lucide="alert-triangle" style="color: var(--warning-solid);"></i>
+                    <div>
+                      <h3>Upcoming Deadlines</h3>
+                      <div class="card-subtitle">Assignments & Projects Due</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="deadlines-list" id="overviewDeadlinesList"></div>
+              </div>
+
+              <!-- Urgent Circular Callout Card -->
+              <div class="pulse-card" style="border-left: 4px solid var(--danger-solid);">
+                <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
+                  <div class="stat-icon-bubble rose" style="width: 40px; height: 40px;">
+                    <i data-lucide="megaphone" style="width: 18px; height: 18px;"></i>
+                  </div>
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                      <span class="badge badge-rose">Urgent Notice</span>
+                      <span style="font-size: 0.72rem; color: var(--text-muted);">Examination Cell</span>
+                    </div>
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">Fall 2026 Final Datesheet</h4>
+                    <p style="font-size: 0.825rem; color: var(--text-secondary); margin: 0.35rem 0 0.75rem 0;">
+                      Final examination timetable released. Hall tickets download is now active for eligible candidates.
+                    </p>
+                    <button class="btn btn-primary btn-sm" onclick="App.openHallTicketModal()">
+                      <span>View & Download Admit Card</span>
+                      <i data-lucide="download" style="width: 13px; height: 13px;"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===============================================================
+             TAB 2: STUDENT PROFILE
+             =============================================================== -->
+        <section class="dashboard-section" id="section-profile">
+          <div class="section-header-row">
+            <div class="section-title-wrap">
+              <h2><i data-lucide="user"></i> Student Profile</h2>
+              <p>Verified university identification, academic standing, and contact records</p>
+            </div>
+            <div class="section-actions">
+              <button class="btn btn-secondary" onclick="window.print()">
+                <i data-lucide="printer"></i>
+                <span>Print Profile</span>
+              </button>
+              <button class="btn btn-primary" onclick="App.showToast('Profile Verified', 'All institutional credentials up-to-date', 'success')">
+                <i data-lucide="shield-check"></i>
+                <span>Verified Student</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Hero Profile Header Card -->
+          <div class="profile-hero-card">
+            <div class="profile-cover-banner"></div>
+            <div class="profile-hero-content">
+              <div style="display: flex; align-items: flex-end; gap: 1.5rem; flex-wrap: wrap;">
+                <div class="profile-photo-wrapper">
+                  <img src="" alt="Student Avatar" id="profileHeroAvatar">
+                  <div class="online-status-dot" title="Active Student"></div>
+                </div>
+                <div class="profile-titles">
+                  <h2 id="profileHeroName">Nissi Kratos</h2>
+                  <p id="profileHeroRoll">CS-2023-048 • PRN: 917620104088</p>
+                  <p id="profileHeroDegree" style="font-weight: 600; color: var(--primary-600); margin-top: 0.2rem;">B.Tech Computer Science & Engineering</p>
+                  
+                  <div class="profile-badges-row">
+                    <span class="badge badge-purple"><i data-lucide="award" style="width: 12px; height: 12px;"></i> Dean's Honor Roll</span>
+                    <span class="badge badge-emerald"><i data-lucide="check" style="width: 12px; height: 12px;"></i> 7th Semester (Regular)</span>
+                    <span class="badge badge-indigo"><i data-lucide="star" style="width: 12px; height: 12px;"></i> Rank #4 in Cohort</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <button class="btn btn-secondary" onclick="App.openLeaveModal()">
+                  <i data-lucide="file-plus"></i>
+                  <span>Submit Leave Request</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Details Grid -->
+          <div class="profile-grid-details">
+            <!-- Left: Personal & Academic Info -->
+            <div class="pulse-card">
+              <div class="card-header-clean">
+                <div class="card-title-group">
+                  <i data-lucide="id-card"></i>
+                  <div>
+                    <h3>Institutional Record</h3>
+                    <div class="card-subtitle">Official registrar data</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="info-fields-grid" id="profileDetailsFields"></div>
+            </div>
+
+            <!-- Right: Skills, Advisor & Emergency Contact -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+              <!-- Advisor Card -->
+              <div class="pulse-card">
+                <div class="card-header-clean">
+                  <div class="card-title-group">
+                    <i data-lucide="user-check"></i>
+                    <div>
+                      <h3>Academic Advisor</h3>
+                      <div class="card-subtitle">Assigned faculty mentor</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150" style="width: 54px; height: 54px; border-radius: var(--radius-full); object-fit: cover;" alt="Prof Vance">
+                  <div>
+                    <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-primary);">Prof. Marcus Vance, Ph.D.</h4>
+                    <p style="font-size: 0.825rem; color: var(--text-tertiary);">Chair, Distributed Systems Dept.</p>
+                    <p style="font-size: 0.8rem; color: var(--primary-600); font-weight: 600;">Office: Engg Tower 518</p>
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem;">
+                  <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="App.showToast('Message Sent', 'Email sent to m.vance@apex.edu', 'info')">
+                    <i data-lucide="mail"></i>
+                    <span>Email Mentor</span>
+                  </button>
+                  <button class="btn btn-primary btn-sm" style="flex: 1;" onclick="App.showToast('Appointment Booked', 'Office hours meeting scheduled for Thursday 2:30 PM', 'success')">
+                    <i data-lucide="calendar"></i>
+                    <span>Book Slot</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Skills & Badges Card -->
+              <div class="pulse-card">
+                <div class="card-header-clean">
+                  <div class="card-title-group">
+                    <i data-lucide="code"></i>
+                    <div>
+                      <h3>Specializations & Tech Stack</h3>
+                      <div class="card-subtitle">Verified coursework competencies</div>
+                    </div>
+                  </div>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;" id="profileSkillsList"></div>
+              </div>
+
+              <!-- Emergency Contact -->
+              <div class="pulse-card">
+                <div class="card-header-clean">
+                  <div class="card-title-group">
+                    <i data-lucide="phone-call" style="color: var(--danger-solid);"></i>
+                    <div>
+                      <h3>Emergency Contact</h3>
+                      <div class="card-subtitle">Guardian on record</div>
+                    </div>
+                  </div>
+                </div>
+                <div style="font-size: 0.9rem; line-height: 1.6;">
+                  <div style="font-weight: 700; color: var(--text-primary);">Dr. Elena Kratos (Mother)</div>
+                  <div style="color: var(--text-secondary);">Mobile: +1 (555) 890-1234</div>
+                  <div style="color: var(--text-muted); font-size: 0.8rem;">elena.kratos@stanford.edu</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===============================================================
+             TAB 3: ATTENDANCE TRACKER
+             =============================================================== -->
+        <section class="dashboard-section" id="section-attendance">
+          <div class="section-header-row">
+            <div class="section-title-wrap">
+              <h2><i data-lucide="check-circle-2"></i> Attendance Tracker</h2>
+              <p>Real-time attendance registry, regulation threshold monitoring, and safety margin calculator</p>
+            </div>
+            <div class="section-actions">
+              <span class="badge badge-emerald" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
+                Overall: 88.4% (Eligible for Exams)
+              </span>
+            </div>
+          </div>
+
+          <!-- Top Attendance Summary: Donut Chart & Smart Calculator -->
+          <div class="attendance-top-summary">
+            <!-- Left: Donut Gauge -->
+            <div class="pulse-card gauge-chart-card">
+              <div class="card-title-group">
+                <i data-lucide="pie-chart"></i>
+                <h3 style="font-size: 1rem;">Cumulative Attendance</h3>
+              </div>
+              <div class="gauge-canvas-wrapper">
+                <canvas id="attendanceGaugeCanvas"></canvas>
+                <div class="gauge-center-text">
+                  <span class="gauge-big-num">88.4%</span>
+                  <span class="gauge-subtext">290 / 328 Classes</span>
+                </div>
+              </div>
+              <p style="font-size: 0.825rem; color: var(--text-tertiary);">Institutional Minimum Threshold: <strong>75.0%</strong></p>
+            </div>
+
+            <!-- Right: Interactive Margin Calculator -->
+            <div class="pulse-card calc-card-body">
+              <div class="card-header-clean" style="margin-bottom: 0.5rem;">
+                <div class="card-title-group">
+                  <i data-lucide="calculator"></i>
+                  <div>
+                    <h3>Attendance Safety Margin Calculator</h3>
+                    <div class="card-subtitle">Know exactly how many lectures you can safely skip or need to attend</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="calc-banner">
+                <div class="calc-banner-icon">
+                  <i data-lucide="thumbs-up"></i>
+                </div>
+                <div class="calc-banner-text">
+                  <h4>You are in the Safe Attendance Zone!</h4>
+                  <p>Overall, you can safely miss up to <strong>16 more classes</strong> across subjects without falling below the mandatory 75% examination threshold.</p>
+                </div>
+              </div>
+
+              <!-- Interactive Controls -->
+              <div class="calc-interactive-bar">
+                <div style="flex: 1;">
+                  <label for="calcSubjectSelect" style="display: block; margin-bottom: 0.35rem;">Select Subject:</label>
+                  <select id="calcSubjectSelect" style="width: 100%;"></select>
+                </div>
+                <div style="width: 140px;">
+                  <label for="calcTargetInput" style="display: block; margin-bottom: 0.35rem;">Target Min %:</label>
+                  <input type="number" id="calcTargetInput" value="75" min="50" max="100" style="width: 100%;">
+                </div>
+              </div>
+
+              <!-- Dynamic Calculator Output -->
+              <div id="calcOutputText" style="padding: 0.85rem 1rem; background-color: var(--bg-subtle); border-radius: var(--radius-md); font-size: 0.875rem; border: 1px dashed var(--border-strong);">
+                Calculating...
+              </div>
+            </div>
+          </div>
+
+          <!-- Attendance Trend Graph -->
+          <div class="pulse-card" style="margin-bottom: 2rem;">
+            <div class="card-header-clean">
+              <div class="card-title-group">
+                <i data-lucide="trending-up"></i>
+                <div>
+                  <h3>Monthly Attendance Consistency Trend</h3>
+                  <div class="card-subtitle">Month-by-month attendance rate during Fall 2026 semester</div>
+                </div>
+              </div>
+            </div>
+            <div class="chart-card-wrapper" style="height: 250px;">
+              <canvas id="attendanceTrendCanvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Subject-Wise Attendance Breakdown Table -->
+          <div class="pulse-card">
+            <div class="card-header-clean">
+              <div class="card-title-group">
+                <i data-lucide="list"></i>
+                <div>
+                  <h3>Course-Wise Attendance Records</h3>
+                  <div class="card-subtitle">Detailed lecture and laboratory log for enrolled subjects</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="pulse-table">
+                <thead>
+                  <tr>
+                    <th>Subject</th>
+                    <th>Faculty</th>
+                    <th>Held / Attended</th>
+                    <th>Percentage & Progress</th>
+                    <th>Status</th>
+                    <th>Safety Margin</th>
+                  </tr>
+                </thead>
+                <tbody id="attendanceTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===============================================================
+             TAB 4: MARKS & ACADEMICS
+             =============================================================== -->
+        <section class="dashboard-section" id="section-marks">
+          <div class="section-header-row">
+            <div class="section-title-wrap">
+              <h2><i data-lucide="award"></i> Marks & Academic Performance</h2>
+              <p>Semester grade point average trends, internal evaluations, and continuous assessments</p>
+            </div>
+            <div class="section-actions">
+              <button class="btn btn-secondary" onclick="App.showToast('Grade Report Generated', 'Official PDF transcript prepared for download', 'success')">
+                <i data-lucide="download"></i>
+                <span>Download Transcript</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Academic Metrics Row -->
+          <div class="academics-metrics-row">
+            <div class="pulse-card">
+              <div class="stat-label">Cumulative Grade Point (CGPA)</div>
+              <div class="stat-value-group">
+                <span class="stat-number">3.84</span>
+                <span class="stat-scale">/ 4.00</span>
+              </div>
+              <div class="stat-delta positive">Equivalent: 92.1% (First Class with Distinction)</div>
+            </div>
+
+            <div class="pulse-card">
+              <div class="stat-label">Projected Term SGPA</div>
+              <div class="stat-value-group">
+                <span class="stat-number">3.85</span>
+                <span class="stat-scale">/ 4.00</span>
+              </div>
+              <div class="stat-delta positive">Estimated from current internal assessments</div>
+            </div>
+
+            <div class="pulse-card">
+              <div class="stat-label">Credits Earned</div>
+              <div class="stat-value-group">
+                <span class="stat-number">112</span>
+                <span class="stat-scale">/ 136 Required</span>
+              </div>
+              <div class="progress-track" style="margin-top: 0.5rem;">
+                <div class="progress-fill fill-emerald" style="width: 82.4%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Row: GPA Trend & Internal Marks Bar Chart -->
+          <div class="marks-chart-row">
+            <!-- Left: GPA Evolution -->
+            <div class="pulse-card">
+              <div class="card-header-clean">
+                <div class="card-title-group">
+                  <i data-lucide="line-chart"></i>
+                  <div>
+                    <h3>SGPA & CGPA Evolution History</h3>
+                    <div class="card-subtitle">Sem 1 to Sem 7 academic trajectory</div>
+                  </div>
+                </div>
+              </div>
+              <div class="chart-card-wrapper">
+                <canvas id="gpaTrendCanvas"></canvas>
+              </div>
+            </div>
+
+            <!-- Right: Internal Marks Comparison -->
+            <div class="pulse-card">
+              <div class="card-header-clean">
+                <div class="card-title-group">
+                  <i data-lucide="bar-chart-2"></i>
+                  <div>
+                    <h3>Mid-Term Assessments</h3>
+                    <div class="card-subtitle">Internal Test 1 vs Internal Test 2 scores</div>
+                  </div>
+                </div>
+              </div>
+              <div class="chart-card-wrapper">
+                <canvas id="internalMarksBarCanvas"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Course Marks Table -->
+          <div class="pulse-card">
+            <div class="card-header-clean">
+              <div class="card-title-group">
+                <i data-lucide="table"></i>
+                <div>
+                  <h3>Current Semester Assessment Breakdown (Fall 2026)</h3>
+                  <div class="card-subtitle">Internal tests, continuous assignments, and predicted end-semester grade</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="pulse-table">
+                <thead>
+                  <tr>
+                    <th>Course Code & Title</th>
+                    <th>Credits</th>
+                    <th>IA-1 (20)</th>
+                    <th>IA-2 (20)</th>
+                    <th>Assignment (10)</th>
+                    <th>Practical (25)</th>
+                    <th>Internal Total (50)</th>
+                    <th>Predicted Grade</th>
+                  </tr>
+                </thead>
+                <tbody id="marksTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===============================================================
+             TAB 5: WEEKLY TIMETABLE
+             =============================================================== -->
+        <section class="dashboard-section" id="section-timetable">
+          <div class="section-header-row">
+            <div class="section-title-wrap">
+              <h2><i data-lucide="calendar"></i> Weekly Timetable</h2>
+              <p>Comprehensive class schedules, lecture halls, and laboratory venue assignments</p>
+            </div>
+            <div class="section-actions">
+              <button class="btn btn-secondary" onclick="window.print()">
+                <i data-lucide="printer"></i>
+                <span>Print Schedule</span>
+              </button>
+              <button class="btn btn-primary" onclick="App.showToast('Calendar Synced', 'Timetable exported to Google Calendar / iCal', 'success')">
+                <i data-lucide="calendar-plus"></i>
+                <span>Sync with iCal</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Day Filter Tabs -->
+          <div class="timetable-tabs-bar">
+            <button class="day-tab-btn active" data-day="Monday">Monday</button>
+            <button class="day-tab-btn" data-day="Tuesday">Tuesday</button>
+            <button class="day-tab-btn" data-day="Wednesday">Wednesday</button>
+            <button class="day-tab-btn" data-day="Thursday">Thursday</button>
+            <button class="day-tab-btn" data-day="Friday">Friday</button>
+            <button class="day-tab-btn" data-day="Saturday">Saturday</button>
+          </div>
+
+          <!-- Timetable Cards Matrix -->
+          <div class="timetable-grid-cards" id="timetableCardsContainer"></div>
+        </section>
+
+        <!-- ===============================================================
+             TAB 6: SUBJECTS & SYLLABUS
+             =============================================================== -->
+        <section class="dashboard-section" id="section-subjects">
+          <div class="section-header-row">
+            <div class="section-title-wrap">
+              <h2><i data-lucide="book-open"></i> Enrolled Subjects & Course Materials</h2>
+              <p>Registered curriculum units, syllabus completion trackers, faculty details, and lecture slide repositories</p>
+            </div>
+            <div class="section-actions">
+              <span class="badge badge-indigo" style="font-size: 0.85rem; padding: 0.5rem 1rem;">6 Active Courses • 20 Credits</span>
+            </div>
+          </div>
+
+          <div class="subjects-grid" id="subjectsGridContainer"></div>
+        </section>
+
+        <!-- ===============================================================
+             TAB 7: ANNOUNCEMENTS & NOTIFICATIONS
+             =============================================================== -->
+        <section class="dashboard-section" id="section-announcements">
+          <div class="section-header-row">
+            <div class="section-title-wrap">
+              <h2><i data-lucide="megaphone"></i> Campus Announcements & Circulars</h2>
+              <p>Official notices from the Examination Cell, Placement Office, Dean of Academics, and Student Council</p>
+            </div>
+          </div>
+
+          <!-- Filter Bar -->
+          <div class="announcements-filter-bar">
+            <div class="category-pill-group">
+              <button class="cat-filter-btn active" data-category="All">All Circulars</button>
+              <button class="cat-filter-btn" data-category="Examination">Examination</button>
+              <button class="cat-filter-btn" data-category="Placements">Placements</button>
+              <button class="cat-filter-btn" data-category="Academic">Academic</button>
+              <button class="cat-filter-btn" data-category="Events">Campus Events</button>
+              <button class="cat-filter-btn" data-category="Administrative">Admin & Fees</button>
+            </div>
+
+            <div style="position: relative; width: 280px;">
+              <input type="text" id="announcementSearchInput" placeholder="Filter notices by keyword..." class="btn-secondary" style="width: 100%; padding: 0.45rem 1rem; border-radius: var(--radius-full); font-size: 0.85rem; outline: none;">
+            </div>
+          </div>
+
+          <!-- Announcements List -->
+          <div class="announcements-list-view" id="announcementsListContainer"></div>
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ===================================================================
+       MODAL 1: SUBJECT DETAILS & SYLLABUS
+       =================================================================== -->
+  <div class="modal-backdrop" id="subjectDetailModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="subjectModalTitle">Subject Title</h3>
+        <button class="btn btn-ghost btn-sm" data-close-modal aria-label="Close modal">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="subjectModalBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal>Close</button>
+        <button class="btn btn-primary" onclick="App.showToast('Course Bookmarked', 'Added to quick access bookmarks', 'success')">
+          <i data-lucide="bookmark"></i>
+          <span>Bookmark Course</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL 2: ANNOUNCEMENT DETAILS
+       =================================================================== -->
+  <div class="modal-backdrop" id="announcementDetailModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="announcementModalTitle">Announcement Details</h3>
+        <button class="btn btn-ghost btn-sm" data-close-modal aria-label="Close modal">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="announcementModalBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal>Close</button>
+        <button class="btn btn-primary" onclick="App.showToast('Circular Shared', 'Link copied to clipboard', 'info')">
+          <i data-lucide="share-2"></i>
+          <span>Share Circular</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL 3: OFFICIAL HALL TICKET / ADMIT CARD
+       =================================================================== -->
+  <div class="modal-backdrop" id="hallTicketModal">
+    <div class="modal-container" style="max-width: 780px;">
+      <div class="modal-header">
+        <h3>Examination Admit Card</h3>
+        <button class="btn btn-ghost btn-sm" data-close-modal aria-label="Close modal">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="hallTicketContent"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal>Close</button>
+        <button class="btn btn-primary" onclick="window.print()">
+          <i data-lucide="printer"></i>
+          <span>Print Admit Card</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL 4: LEAVE APPLICATION FORM
+       =================================================================== -->
+  <div class="modal-backdrop" id="leaveModal">
+    <div class="modal-container" style="max-width: 550px;">
+      <div class="modal-header">
+        <h3>Request Academic Leave</h3>
+        <button class="btn btn-ghost btn-sm" data-close-modal aria-label="Close modal">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form onsubmit="App.submitLeaveRequest(event)">
+        <div class="modal-body">
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <label style="display: block; font-size: 0.825rem; font-weight: 700; margin-bottom: 0.35rem;">Leave Type</label>
+              <select style="width: 100%; padding: 0.6rem; border-radius: var(--radius-md); border: 1px solid var(--border-default); background: var(--bg-surface); color: var(--text-primary); outline: none;">
+                <option>Medical Leave</option>
+                <option>On-Duty (Hackathon / Conference)</option>
+                <option>Family Emergency</option>
+                <option>Personal Leave</option>
+              </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.825rem; font-weight: 700; margin-bottom: 0.35rem;">From Date</label>
+                <input type="date" required style="width: 100%; padding: 0.55rem; border-radius: var(--radius-md); border: 1px solid var(--border-default); background: var(--bg-surface); color: var(--text-primary);">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.825rem; font-weight: 700; margin-bottom: 0.35rem;">To Date</label>
+                <input type="date" required style="width: 100%; padding: 0.55rem; border-radius: var(--radius-md); border: 1px solid var(--border-default); background: var(--bg-surface); color: var(--text-primary);">
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.825rem; font-weight: 700; margin-bottom: 0.35rem;">Reason for Leave</label>
+              <textarea id="leaveReasonInput" rows="3" required placeholder="Describe reason for leave request..." style="width: 100%; padding: 0.65rem; border-radius: var(--radius-md); border: 1px solid var(--border-default); background: var(--bg-surface); color: var(--text-primary); font-family: inherit; font-size: 0.875rem; outline: none;"></textarea>
+            </div>
+
+            <div style="font-size: 0.78rem; color: var(--text-tertiary);">
+              * Note: Medical certificates or event acceptance letters must be presented to Mentor Prof. Marcus Vance upon return.
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="send"></i>
+            <span>Submit Application</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       TOAST CONTAINER
+       =================================================================== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- APPLICATION SCRIPTS -->
+  <script src="js/data.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+/* ===================================================================
+   CAMPUS PULSE - RESPONSIVE STYLESHEET
+   Flawless adaptability across all viewports
+   =================================================================== */
+
+/* Media Query: Large Laptops & Desktops <= 1280px */
+@media (max-width: 1280px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-columns-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .marks-chart-row {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-top-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-grid-details {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Media Query: Tablets & Small Screens <= 992px */
+@media (max-width: 992px) {
+  .app-sidebar {
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .app-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .menu-toggle-btn {
+    display: flex;
+  }
+
+  .app-topbar {
+    padding: 0 1.25rem;
+  }
+
+  .page-content-wrapper {
+    padding: 1.25rem;
+  }
+
+  .search-omnibox {
+    width: 220px;
+  }
+
+  .overview-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .academics-metrics-row {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 95;
+    display: none;
+  }
+
+  .sidebar-backdrop.active {
+    display: block;
+  }
+}
+
+/* Media Query: Mobile Devices <= 640px */
+@media (max-width: 640px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .search-omnibox {
+    display: none; /* Accessible via mobile action */
+  }
+
+  .date-time-pill span.date-text {
+    display: none;
+  }
+
+  .topbar-user-info {
+    display: none;
+  }
+
+  .topbar-user-pill {
+    padding: 0.25rem;
+  }
+
+  .banner-content-left h1 {
+    font-size: 1.5rem;
+  }
+
+  .banner-quick-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .banner-quick-actions .btn {
+    width: 100%;
+  }
+
+  .profile-hero-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 1.25rem 1.5rem 1.25rem;
+  }
+
+  .profile-photo-wrapper {
+    margin-top: -60px;
+  }
+
+  .profile-badges-row {
+    justify-content: center;
+  }
+
+  .info-fields-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .schedule-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .schedule-time-box {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .schedule-info-box {
+    padding: 0;
+  }
+
+  .schedule-badge-wrap {
+    width: 100%;
+    text-align: left;
+  }
+
+  .announcements-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .category-pill-group {
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .cat-filter-btn {
+    flex-shrink: 0;
+  }
+
+  .modal-container {
+    max-height: 95vh;
+  }
+
+  .notifications-dropdown-menu {
+    width: calc(100vw - 2rem);
+    right: -10px;
+  }
+}
